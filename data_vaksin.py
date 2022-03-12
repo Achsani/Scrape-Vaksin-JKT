@@ -20,7 +20,6 @@ r = session.get(url)
 r.html.render(sleep=10, timeout = 25)
 res = BeautifulSoup(r.html.raw_html, "html.parser")
 
-
 # Get all href data and insert it to data list
 for link in res.find_all('a', href=True):
     data.append(link)
@@ -35,7 +34,7 @@ judul = data[7].get_text()
 
 
 # Download excel data using google drive id
-destination = './' + judul + ".xlsx"
+destination = 'C:/Users/Farhan Achsani/Desktop/Kodingan/Scrape-Vaksin-JKT/' + judul + ".xlsx"
 gdd.download_file_from_google_drive(file_id=id_file, dest_path=destination)
 judul_excel = judul + ".xlsx"
 
@@ -46,25 +45,28 @@ today = DT.date.today()
 date = today - DT.timedelta(days=1)
 str_date = str(date)
 
-# Column where we want the data  reside
+# Data structure from beginning till 6 March 2022
 # # (0 = A, Kode Kel) (1 = B, Wil Kota) (2 = C, Kecamatan) (3 = D, Kelurahan) (4 = E, Sasaran) (5 = F, Belum Vaksin) (6 = G, Jumlah Dosis 1) (7 = H, Jumlah Dosis 2) (8 = I, Total Vaksin)
-cols_kelurahan = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+# cols_kelurahan = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+
+# Column where we want the data  reside 
+# # (0 = A, Kode Kel) (1 = B, Wil Kota) (2 = C, Kecamatan) (3 = D, Kelurahan) (4 = E, Sasaran) (5 = F, Belum Vaksin) (6 = G, Jumlah Dosis 1) (7 = H, Jumlah Dosis 2) (9 = J, Total Vaksin)
+cols_kelurahan = [0, 1, 2, 3, 4, 5, 6, 7, 9]
 
 # On 30 July excel data changed from 1 sheet to 2 sheets
 # Read downloaded data and exctract column that's needed
-kelurahan = pd.read_excel(judul_excel, header = 0, sheet_name="Data Kelurahan", usecols=cols_kelurahan)
+kelurahan = pd.read_excel(destination, header = 0, sheet_name="Data Kelurahan", usecols=cols_kelurahan)
 # kelurahan = pd.read_excel(judul_excel, header = 0, usecols=cols_kelurahan)
-kelurahan.rename(columns={'JUMLAH\nDOSIS 1' : 'DOSIS 1', 'JUMLAH\nDOSIS 2' : 'DOSIS 2', 'TOTAL VAKSIN\nDIBERIKAN' : 'TOTAL VAKSIN'}, inplace=True)
+kelurahan.rename(columns={'BELUM VAKSIN' : 'BELUM_VAKSIN', 'JUMLAH\nDOSIS 1' : 'DOSIS_1', 'JUMLAH\nDOSIS 2' : 'DOSIS_2', 'TOTAL VAKSIN\nDIBERIKAN' : 'TOTAL_VAKSIN'}, inplace=True)
 kelurahan = kelurahan.iloc[1:]
 kelurahan['TANGGAL'] = date
 kelurahan['KODE KELURAHAN'] = kelurahan['KODE KELURAHAN'].astype('int64')
-
 
 print(judul)
 print(str_date)
 
 # Location of old data that we want to append
-destination_kelurahan = './Vaksin-Covid19-JKT-Kelurahan.csv'
+destination_kelurahan = 'C:/Users/Farhan Achsani/Desktop/Kodingan/Scrape-Vaksin-JKT/Vaksin-Covid19-JKT-Kelurahan.csv'
 
 #Read past data
 past_kelurahan = pd.read_csv(destination_kelurahan)
